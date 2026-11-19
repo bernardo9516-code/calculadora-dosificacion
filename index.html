@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dosificación Moldeados</title>
+<meta name="theme-color" content="#c5e0b4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dosificación">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+/* Sistema de diseño Moldeados: fondo blanco, verde solo en barras y título, Arial títulos, Calibri datos, rectángulos rectos */
+:root{
+  --fondo:#ffffff; --tinta:#000000; --verde-banda:#c5e0b4; --verde-bosque:#385623;
+  --tabla-media:#deebf7; --borde:#8b8b8b; --gris:#595959; --linea:#d9d9d9; --entrada:#fff2cc; --entrada-borde:#bf9000;
+  --titulo:Arial,"Helvetica Neue",Helvetica,sans-serif; --datos:Calibri,Carlito,"Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--fondo);color:var(--tinta);font-family:var(--datos);font-size:15px;line-height:1.4;margin:0}
+.barra{background:var(--verde-banda);height:10px}
+.barra.inf{height:16px;margin-top:24px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 0}
+.barra:first-child{margin-top:0}
+body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+header{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+header h1{font-family:var(--titulo);font-weight:700;font-size:24px;margin:0;color:var(--verde-bosque);text-wrap:balance}
+header p{margin:0;color:var(--gris);font-size:13px}
+.panel{border:0.75px solid var(--borde);padding:12px;display:flex;flex-direction:column;gap:10px}
+.panel h2{margin:0;font-family:var(--titulo);font-size:15px;font-weight:700;color:var(--tinta)}
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr));gap:6px 8px;align-items:center}
+.grid.three{grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr))}
+.grid .h{font-size:13px;font-weight:700;text-align:center;background:var(--tabla-media);padding:4px 2px}
+.grid .l{font-size:14px;min-width:0}
+.grid .l small{display:block;color:var(--gris);font-size:12px}
+input,select{font:inherit;font-size:15px;width:100%;min-width:0;padding:7px 8px;border-radius:0;
+  border:1px solid var(--entrada-borde);background:var(--entrada);color:var(--tinta);text-align:right}
+select{text-align:left}
+input:focus,select:focus{outline:2px solid var(--verde-bosque);outline-offset:1px}
+.v{text-align:right;font-variant-numeric:tabular-nums;font-size:15px;padding:7px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:0.75px solid var(--linea)}
+.v.big{font-weight:700;font-size:17px;border:0.75px solid var(--borde)}
+.v.na{color:var(--gris);font-size:12px;font-weight:400}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.row2 label{font-size:13px;color:var(--gris);display:flex;flex-direction:column;gap:4px}
+.note{font-size:12px;color:var(--gris);margin:0}
+.sep{height:1px;background:var(--linea);margin:2px 0}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{border-bottom:0.75px solid var(--borde);padding:7px 6px;text-align:center;font-size:15px}
+th{background:var(--tabla-media);font-size:13px}
+td.on{background:#d9d9d9;font-weight:700}
+.chem{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:6px 8px;align-items:center}
+.chem input.name{text-align:left}
+.chem .fixed{font-size:14px}
+button{font:inherit;font-size:14px;padding:8px 10px;border-radius:0;border:0.75px solid var(--borde);background:var(--fondo);color:var(--tinta);cursor:pointer}
+button:focus-visible{outline:2px solid var(--verde-bosque)}
+footer{display:flex;justify-content:flex-end}
+footer img{width:140px;height:auto}
+@media (max-width:420px){.v{font-size:14px} .v.big{font-size:15px} input{font-size:14px;padding:7px 5px} .grid .l{font-size:13px}}
+</style>
+</head>
+<body>
+<div class="barra"></div>
+<div class="wrap">
+  <header>
+    <h1>Dosificación de químicos</h1>
+    <p>M1 y M2 · Llena los campos amarillos. Las dosis son del químico tal como viene en el contenedor.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="h-q">
+    <h2 id="h-q">Químico y contenedor</h2>
+    <div class="row2">
+      <label for="chemSel">Químico<select id="chemSel"></select></label>
+      <label for="vol">Contenedor (L)<input id="vol" inputmode="decimal"></label>
+      <label for="hrs">Horas de dosificación por día<input id="hrs" inputmode="decimal"></label>
+      <label for="days">Días por mes<input id="days" inputmode="decimal"></label>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-p">
+    <h2 id="h-p">Producción</h2>
+    <div class="grid">
+      <div></div><div class="h">M1</div><div class="h">M2</div>
+      <div class="l">Producción<small>bultos/h</small></div><input id="b1" inputmode="decimal"><input id="b2" inputmode="decimal">
+      <div class="l">Separadores por bulto</div><input id="s1" inputmode="decimal"><input id="s2" inputmode="decimal">
+      <div class="l">Peso del separador<small>g</small></div><input id="g1" inputmode="decimal"><input id="g2" inputmode="decimal">
+      <div class="l"><b>Producción</b><small>t/h</small></div><div class="v big" id="t1"></div><div class="v big" id="t2"></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-c">
+    <h2 id="h-c">Sugerencia del proveedor → dosis</h2>
+    <div class="grid">
+      <div></div><div class="h">M1</div><div class="h">M2</div>
+      <div class="l">Sugerencia<small>L de químico por t</small></div><input id="lt1" inputmode="decimal"><input id="lt2" inputmode="decimal">
+      <div class="l"><b>Dosis</b><small>ml/min</small></div><div class="v big" id="mm1"></div><div class="v big" id="mm2"></div>
+    </div>
+    <button id="useSug" type="button">Usar estas dosis abajo</button>
+  </section>
+
+  <section class="panel" aria-labelledby="h-d">
+    <h2 id="h-d">Dosis → consumo</h2>
+    <div class="grid three">
+      <div></div><div class="h">M1</div><div class="h">M2</div><div class="h">M1 + M2</div>
+      <div class="l">Dosis<small>ml/min</small></div><input id="d1" inputmode="decimal"><input id="d2" inputmode="decimal"><div class="v" id="dT"></div>
+      <div class="l">Equivale a<small>L de químico por t</small></div><div class="v" id="e1"></div><div class="v" id="e2"></div><div class="v" id="eT"></div>
+      <div class="sep" style="grid-column:1/-1"></div>
+      <div class="l">Consumo diario<small>L/día</small></div><div class="v" id="cd1"></div><div class="v" id="cd2"></div><div class="v" id="cdT"></div>
+      <div class="l">Consumo mensual<small>L/mes</small></div><div class="v" id="cm1"></div><div class="v" id="cm2"></div><div class="v" id="cmT"></div>
+      <div class="l"><b>Duración del contenedor</b><small>días</small></div><div class="v big" id="du1"></div><div class="v big" id="du2"></div><div class="v big" id="duT"></div>
+      <div class="l">Contenedores por mes</div><div class="v" id="n1"></div><div class="v" id="n2"></div><div class="v" id="nT"></div>
+    </div>
+    <p class="note">Por máquina: el contenedor alimenta solo esa máquina. M1 + M2: un contenedor alimenta las dos a la vez.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-k">
+    <h2 id="h-k">Combinaciones · duración del contenedor (días)</h2>
+    <div class="row2">
+      <label for="k1">Dosis M1 (ml/min), separadas por espacio<input id="k1" style="text-align:left"></label>
+      <label for="k2">Dosis M2 (ml/min), separadas por espacio<input id="k2" style="text-align:left"></label>
+    </div>
+    <div class="tbl"><table id="ktab"></table></div>
+    <p class="note">Filas: M1. Columnas: M2. Sombreada y en negrita: la combinación de «Dosis → consumo».</p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-v">
+    <h2 id="h-v">Contenedores por químico</h2>
+    <div class="chem" id="chemList"></div>
+    <p class="note">Los datos se guardan solo en este teléfono.</p>
+  </section>
+  <footer><img alt="Moldeados Venezuela" src="logo.png"></footer>
+</div>
+<div class="barra inf"></div>
+
+<script>
+const KEY='dosif-moldeados-v1';
+const DEF={chems:[['AKD',1000],['PAE',''],['SDR',''],['Bactericida I',''],['Bactericida II',''],['Antiespumante',''],['Otro 1',''],['Otro 2',''],['Otro 3',''],['Otro 4','']],
+  chem:0,hrs:'24',days:'30',b1:'',b2:'',s1:'',s2:'',g1:'',g2:'',lt1:'',lt2:'',d1:'60',d2:'30',k1:'40 60 75',k2:'30 40 60'};
+let S;
+try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){S=Object.assign({},DEF)}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const num=s=>{if(s===undefined||s===null)return NaN;s=String(s).trim().replace(/\s/g,'');if(!s)return NaN;
+  if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return Number(s)};
+const ok=x=>Number.isFinite(x);
+const fmt=(x,d=2)=>ok(x)?x.toLocaleString('es-VE',{minimumFractionDigits:d,maximumFractionDigits:d}):'';
+function put(id,x,d=2,why='—'){const el=$(id);if(ok(x)){el.textContent=fmt(x,d);el.classList.remove('na')}else{el.textContent=why;el.classList.add('na')}}
+
+function renderChemList(){
+  const sel=$('chemSel');sel.innerHTML='';
+  S.chems.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=c[0];sel.appendChild(o)});
+  sel.value=S.chem;
+  const box=$('chemList');box.innerHTML='';
+  S.chems.forEach((c,i)=>{
+    let n;
+    if(i>=6){n=document.createElement('input');n.className='name';n.id='cn'+i;n.value=c[0];n.setAttribute('aria-label','Nombre del químico '+(i+1));
+      n.addEventListener('input',()=>{S.chems[i][0]=n.value||('Otro '+(i-5));save();sel.options[i].textContent=S.chems[i][0]})}
+    else{n=document.createElement('div');n.className='fixed';n.textContent=c[0]}
+    const v=document.createElement('input');v.id='cv'+i;v.inputMode='decimal';v.placeholder='L';v.value=c[1];v.setAttribute('aria-label','Contenedor de '+c[0]+' en litros');
+    v.addEventListener('input',()=>{S.chems[i][1]=v.value;save();if(+S.chem===i){$('vol').value=v.value;calc()}});
+    box.append(n,v);
+  });
+}
+const fields=['hrs','days','b1','b2','s1','s2','g1','g2','lt1','lt2','d1','d2','k1','k2'];
+function bind(){
+  fields.forEach(f=>{const el=$(f);el.value=S[f];el.addEventListener('input',()=>{S[f]=el.value;save();calc()})});
+  $('vol').value=S.chems[S.chem][1];
+  $('vol').addEventListener('input',()=>{S.chems[S.chem][1]=$('vol').value;$('cv'+S.chem).value=$('vol').value;save();calc()});
+  $('chemSel').addEventListener('change',()=>{S.chem=+$('chemSel').value;$('vol').value=S.chems[S.chem][1];save();calc()});
+  $('useSug').addEventListener('click',()=>{
+    ['1','2'].forEach(m=>{const x=num($('mm'+m).dataset.val);if(ok(x)){const t=fmt(x,1);$('d'+m).value=t;S['d'+m]=t}});save();calc()});
+}
+function calc(){
+  const H=num(S.hrs),D=num(S.days),V=num($('vol').value);
+  const t={};
+  for(const m of ['1','2']){
+    t[m]=num(S['b'+m])*num(S['s'+m])*num(S['g'+m])/1e6;
+    put('t'+m,t[m],3,'Falta dato');
+    const mm=num(S['lt'+m])*t[m]*1000/60; put('mm'+m,mm,1,ok(t[m])?'—':'Falta producción'); $('mm'+m).dataset.val=ok(mm)?mm:'';
+  }
+  const d={1:num(S.d1),2:num(S.d2)};
+  const dd=m=>ok(d[m])?d[m]:0;
+  const dT=dd(1)+dd(2); put('dT',dT>0?dT:NaN,1);
+  for(const m of ['1','2']){
+    put('e'+m,d[m]*60/1000/t[m],3,ok(t[m])?'—':'Falta producción');
+    const cd=d[m]*60*H/1000; put('cd'+m,cd,1); put('cm'+m,cd*D,0);
+    put('du'+m,cd>0?V/cd:NaN,2,ok(V)?'—':'Falta contenedor'); put('n'+m,cd>0&&ok(V)?cd*D/V:NaN,2);
+  }
+  const tT=(ok(t[1])?t[1]:0)+(ok(t[2])?t[2]:0);
+  put('eT',dT>0&&tT>0&&ok(t[1])&&ok(t[2])?dT*60/1000/tT:NaN,3,'—');
+  const cdT=dT*H/1000*60; put('cdT',dT>0?cdT:NaN,1); put('cmT',dT>0?cdT*D:NaN,0);
+  put('duT',dT>0?V/cdT:NaN,2,ok(V)?'—':'Falta contenedor'); put('nT',dT>0&&ok(V)?cdT*D/V:NaN,2);
+  // combinations
+  const L=s=>String(s||'').split(/[\s;]+/).map(num).filter(x=>ok(x)&&x>0).slice(0,8);
+  const a=L(S.k1),b=L(S.k2);let h='';
+  if(!a.length||!b.length){h='<tr><td>Escribe al menos una dosis para cada máquina.</td></tr>'}
+  else{
+    h='<tr><th>M1 \\ M2</th>'+b.map(x=>'<th>'+fmt(x,0)+'</th>').join('')+'</tr>';
+    for(const x of a){h+='<tr><th>'+fmt(x,0)+'</th>';for(const y of b){
+      const c=(x+y)*60*H/1000, du=V/c, on=x===d[1]&&y===d[2];
+      h+='<td'+(on?' class="on"':'')+'>'+(ok(du)&&c>0?fmt(du,2):'—')+'</td>'}h+='</tr>'}
+  }
+  $('ktab').innerHTML=h;
+}
+renderChemList();bind();calc();
+</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+</script>
+</body>
+</html>
